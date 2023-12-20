@@ -74,6 +74,9 @@ def train_loop(
                 do_classifier_free_guidance=False
             )
 
+            for param in controlnet.parameters():
+                print(param.requires_grad)
+
             loss = criterion(pred, noise)
             loss.backward()
             optimizer.step()
@@ -145,6 +148,7 @@ def main():
     feature_extractor = CLIPImageProcessor.from_pretrained("weights/stable-diffusion-2-1/feature_extractor")
 
     # to eval mode　
+    controlnet.train()
     unet.eval()
     vae.eval()
     text_encoder.eval()
