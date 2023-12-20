@@ -27,19 +27,21 @@ def get_loss(
     guess_mode: bool = False,
     do_classifier_free_guidance = True,
 ):
+
+    # 0. Settings
+    batch_size = len(prompt)
+    vae_scale_factor = 2 ** (len(vae.config.block_out_channels) - 1)
+    height = height or unet.config.sample_size * vae_scale_factor
+    width = width or unet.config.sample_size * vae_scale_factor
+
     with torch.no_grad():
-        # 0. Settings
-        batch_size = len(prompt)
-        vae_scale_factor = 2 ** (len(vae.config.block_out_channels) - 1)
-        height = height or unet.config.sample_size * vae_scale_factor
-        width = width or unet.config.sample_size * vae_scale_factor
         control_image_processor = VaeImageProcessor(
             vae_scale_factor=vae_scale_factor, do_normalize=False
         )
-        image = image.to(device=device)
-        image_c = image_c.to(device=device)
+    image = image.to(device=device)
+    image_c = image_c.to(device=device)
 
-        
+    with torch.no_grad():
         # 1. Encode input prompt
         prompt_embeds, negative_prompt_embeds = encode_prompt(
             unet,
@@ -51,9 +53,10 @@ def get_loss(
             do_classifier_free_guidance,
         )
 
-        if do_classifier_free_guidance:
-            prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
+    if do_classifier_free_guidance:
+        prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
 
+    with torch.no_grad():
         # 2. Prepare image_c
         image_c = prepare_image(
             image=image_c,
@@ -68,35 +71,35 @@ def get_loss(
             guess_mode=guess_mode,
         )
 
-
-        image = image.to(dtype=dtype)
-        image_c = image_c.to(dtype=dtype)
-
-
-        # 4. Prepare noises
-        num_channels_latents = unet.config.in_channels
-        noise = prepare_noise(
-            batch_size * num_images_per_prompt,
-            num_channels_latents,
-            height,
-            width,
-            prompt_embeds.dtype,
-            device,
-            vae_scale_factor,
-        )
-
-        # 5. Prepare timesteps
-        timesteps = get_timesteps(noise_scheduler, batch_size).to(device=device)
+    image = image.to(dtype=dtype)
+    image_c = image_c.to(dtype=dtype)
 
 
-        # 6. Encode input using VAE
+    # 4. Prepare noises
+    num_channels_latents = unet.config.in_channels
+    noise = prepare_noise(
+        batch_size * num_images_per_prompt,
+        num_channels_latents,
+        height,
+        width,
+        prompt_embeds.dtype,
+        device,
+        vae_scale_factor,
+    )
+
+    # 5. Prepare timesteps
+    timesteps = get_timesteps(noise_scheduler, batch_size).to(device=device)
+
+
+    # 6. Encode input using VAE
+    with torch.no_grad():
         image_latents = encode_vae_image(vae, image, device)
         image_latents = image_latents.to(dtype=dtype)
 
-        # 7. add noise
-        latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps).to(dtype=dtype).to(device=device)
-        latent_model_input = torch.cat([image_latents] * 2) if do_classifier_free_guidance else latent_model_input
-        timesteps = torch.cat((timesteps, timesteps), dim=0) if do_classifier_free_guidance else timesteps
+    # 7. add noise
+    latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps).to(dtype=dtype).to(device=device)
+    latent_model_input = torch.cat([image_latents] * 2) if do_classifier_free_guidance else latent_model_input
+    timesteps = torch.cat((timesteps, timesteps), dim=0) if do_classifier_free_guidance else timesteps
 
     # 8. controlnet
     control_model_input = latent_model_input
@@ -111,14 +114,15 @@ def get_loss(
     )
 
     # 8. unet
-    noise_pred = unet(
-        latent_model_input,
-        timesteps,
-        encoder_hidden_states=prompt_embeds,
-        down_block_additional_residuals=down_block_res_samples,
-        mid_block_additional_residual=mid_block_res_sample,
-        return_dict=False,
-    )[0]
+    with torch.no_grad():
+        noise_pred = unet(
+            latent_model_input,
+            timesteps,
+            encoder_hidden_states=prompt_embeds,
+            down_block_additional_residuals=down_block_res_samples,
+            mid_block_additional_residual=mid_block_res_sample,
+            return_dict=False,
+        )[0]
 
     # 9. do_classifier_free_guidance
     if do_classifier_free_guidance:
