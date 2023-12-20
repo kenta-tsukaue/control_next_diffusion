@@ -57,6 +57,7 @@ def train_loop(
             cropped_frame1 = cropped_frame1.to(device)
             cropped_frame2 = cropped_frame2.to(device)
             
+            optimizer.zero_grad()
             # get loss
             pred, noise = get_loss(
                 unet,
@@ -80,7 +81,7 @@ def train_loop(
             print(loss.requires_grad)
             loss.backward()
             optimizer.step()
-            #lr_scheduler.step()
+            lr_scheduler.step()
             progress_bar.update(1)
 
 
