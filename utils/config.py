@@ -9,7 +9,7 @@ class TrainingConfig:
     data_path = "/public/tsukaue/datasets/action_youtube_naudio" #train.pyからの位置
     num_epochs = 10
     gradient_accumulation_steps = 1
-    learning_rate = 1e-6
+    learning_rate = 1e-10
     lr_warmup_steps = 500
     save_image_epochs = 10
     save_model_epochs = 30
