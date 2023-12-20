@@ -125,7 +125,6 @@ def get_loss(
         return_dict=False,
     )[0]
 
-    check_nan("noise_pred",noise_pred)
 
     # 9. do_classifier_free_guidance
     if do_classifier_free_guidance:
