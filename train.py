@@ -159,7 +159,7 @@ def main():
 
     # set optimizer
     criterion = nn.MSELoss()
-    optimizer = torch.optim.AdamW(controlnet.parameters(), lr=config.learning_rate)
+    optimizer = torch.optim.Adam(controlnet.parameters(), lr=config.learning_rate)
     lr_scheduler = get_cosine_schedule_with_warmup(
         optimizer=optimizer,
         num_warmup_steps=config.lr_warmup_steps,
