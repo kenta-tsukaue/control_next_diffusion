@@ -83,6 +83,7 @@ def train_loop(
             print(loss)
             print(loss.requires_grad)
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(controlnet.parameters(), max_norm=1.0)
             optimizer.step()
             #lr_scheduler.step()
             progress_bar.update(1)
@@ -124,7 +125,7 @@ def main():
     #set device
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     dtype = torch.float16 if device == torch.device('cuda') else torch.float32
-
+    
     # import config
     config = TrainingConfig()
 
@@ -159,7 +160,7 @@ def main():
 
     # set optimizer
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(controlnet.parameters(), lr=config.learning_rate)
+    optimizer = torch.optim.AdamW(controlnet.parameters(), lr=config.learning_rate)
     lr_scheduler = get_cosine_schedule_with_warmup(
         optimizer=optimizer,
         num_warmup_steps=config.lr_warmup_steps,
