@@ -99,23 +99,22 @@ def train_loop(
             )
             evaluate(config, epoch, pipeline)"""
 
-        #if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
-        #if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
+        if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
             # save model
-        print("save model")
-        save_dir = save_dir = "./weights"
-        # ディレクトリが存在しない場合は作成
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
+            print("save model")
+            save_dir = save_dir = "./weights"
+            # ディレクトリが存在しない場合は作成
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
 
-        # 現在のタイムスタンプを取得
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # 現在のタイムスタンプを取得
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        # ファイルパスを設定
-        save_path = os.path.join(save_dir, f"{timestamp}.ckpt")
+            # ファイルパスを設定
+            save_path = os.path.join(save_dir, f"{timestamp}.ckpt")
 
-        # モデルを保存
-        torch.save(controlnet, save_path)
+            # モデルを保存
+            torch.save(controlnet, save_path)
 
 
 

@@ -12,7 +12,7 @@ class TrainingConfig:
     learning_rate = 1e-5
     lr_warmup_steps = 500
     save_image_epochs = 10
-    save_model_epochs = 50
+    save_model_epochs = 10
     mixed_precision = "fp16"  # `no` for float32, `fp16` for automatic mixed precision
     output_dir = "output"  # the model name locally and on the HF Hub
     overwrite_output_dir = True  # overwrite the old model when re-running the notebook
