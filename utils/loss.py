@@ -37,6 +37,8 @@ def get_loss(
         control_image_processor = VaeImageProcessor(
             vae_scale_factor=vae_scale_factor, do_normalize=False
         )
+        image = image.to(device=device)
+        image_c = image_c.to(device=device)
         
         # 1. Encode input prompt
         prompt_embeds, negative_prompt_embeds = encode_prompt(
