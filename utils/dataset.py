@@ -56,8 +56,8 @@ class CustomDataset(Dataset):
         cropped_frame2 = self.crop_to_square(frame2)
 
         if self.transform:
-            cropped_frame1 = self.transform(cropped_frame1).to(device=self.device)
-            cropped_frame2 = self.transform(cropped_frame2).to(device=self.device)
+            cropped_frame1 = self.transform(cropped_frame1)
+            cropped_frame2 = self.transform(cropped_frame2)
 
         return cropped_frame1, cropped_frame2
     

@@ -53,6 +53,7 @@ def train_loop(
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
+            print(cropped_frame1.device)  # ここでデバイスをチェック
             # get loss
             loss = get_loss(
                 unet,

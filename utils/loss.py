@@ -188,9 +188,6 @@ def get_timesteps(noise_scheduler, batch_size):
     return timesteps
 
 def encode_vae_image(vae, image, device):
-    # VAEを使用してエンコード
-    print("dtypes", image.dtype)
-    image = image.to(device)
     image_latent = vae.encode(image).latent_dist.mode().detach()
     image_latent.to(device)
     return image_latent
