@@ -1,2 +1,4 @@
 weights/
 dataset/
+/__pycache__
+utils/__pycache__
