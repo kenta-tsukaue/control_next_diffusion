@@ -8,7 +8,7 @@ from diffusers import DDIMScheduler
 from diffusers.optimization import get_cosine_schedule_with_warmup
 from PIL import Image
 import torch
-import torch.nn.functional as F
+import torch.nn as nn
 from torchvision.transforms import Compose, Resize, Normalize, ToTensor
 from tqdm.auto import tqdm
 from transformers import CLIPTextModel, CLIPTokenizer, CLIPImageProcessor
@@ -36,7 +36,8 @@ def train_loop(
         tokenizer,
         feature_extractor, 
         noise_scheduler, 
-        optimizer, 
+        optimizer,
+        criterion,
         train_dataloader, 
         lr_scheduler, 
         device,
@@ -71,6 +72,7 @@ def train_loop(
                 prompt,
                 cropped_frame1,#次
                 cropped_frame2,#最初
+                criterion,
                 do_classifier_free_guidance=False
             )
             print(loss)
@@ -150,6 +152,7 @@ def main():
     text_encoder.eval()
 
     # set optimizer
+    criterion = nn.MSELoss()
     optimizer = torch.optim.AdamW(controlnet.parameters(), lr=config.learning_rate)
     lr_scheduler = get_cosine_schedule_with_warmup(
         optimizer=optimizer,
@@ -157,7 +160,7 @@ def main():
         num_training_steps=(len(train_dataloader) * config.num_epochs),
     )
 
-    train_loop(config, unet, controlnet, vae, text_encoder, tokenizer, feature_extractor, noise_scheduler, optimizer, train_dataloader, lr_scheduler, device, dtype)
+    train_loop(config, unet, controlnet, vae, text_encoder, tokenizer, feature_extractor, noise_scheduler, optimizer, criterion, train_dataloader, lr_scheduler, device, dtype)
 
 
 if __name__ == "__main__":
