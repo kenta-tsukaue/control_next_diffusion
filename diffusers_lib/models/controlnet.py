@@ -671,7 +671,7 @@ class ControlNetModel(ModelMixin, ConfigMixin, FromOriginalControlnetMixin):
         guess_mode: bool = False,
         return_dict: bool = True,
     ) -> Union[ControlNetOutput, Tuple[Tuple[torch.FloatTensor, ...], torch.FloatTensor]]:
-        print(sample.size())
+        #print(sample.size())
         """
         The [`ControlNetModel`] forward method.
 
