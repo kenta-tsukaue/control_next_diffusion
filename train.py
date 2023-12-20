@@ -76,6 +76,7 @@ def train_loop(
 
             loss = criterion(pred, noise)
             print(loss)
+            print(loss.requires_grad)
             loss.backward()
             optimizer.step()
             lr_scheduler.step()
