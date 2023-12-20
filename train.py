@@ -135,7 +135,7 @@ def main():
     torch.cuda.empty_cache()
     #set device
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    dtype = torch.float16 if device == torch.device('cuda') else torch.float32
+    dtype = torch.float32 if device == torch.device('cuda') else torch.float32
     
     # import config
     config = TrainingConfig()

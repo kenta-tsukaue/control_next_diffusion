@@ -6,7 +6,7 @@ class TrainingConfig:
     width = 768
     train_batch_size = 4
     eval_batch_size = 2
-    data_path = "/public/tsukaue/datasets/action_youtube_naudio" #train.pyからの位置
+    data_path = "/public/tsukaue/datasets/action_youtube_naudio"  #"dataset/action_youtube_naudio"
     num_epochs = 10
     gradient_accumulation_steps = 1
     learning_rate = 0

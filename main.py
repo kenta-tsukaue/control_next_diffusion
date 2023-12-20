@@ -1136,7 +1136,7 @@ if __name__ == "__main__":
 """
 ================
 
-!accelerate launch train_controlnet.py \
+!accelerate launch main.py \
  --pretrained_model_name_or_path="stabilityai/stable-diffusion-2-1-base" \
  --output_dir="model_out" \
  --dataset_name=multimodalart/facesyntheticsspigacaptioned \
