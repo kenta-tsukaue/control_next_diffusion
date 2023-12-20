@@ -94,12 +94,13 @@ def get_loss(
         image_latents = image_latents.to(dtype=dtype)
 
         # 7. add noise
-        latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps)
+        latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps).to(dtype=dtype)
         latent_model_input = torch.cat([image_latents] * 2) if do_classifier_free_guidance else latent_model_input
         timesteps = torch.cat((timesteps, timesteps), dim=0) if do_classifier_free_guidance else timesteps
 
 
     print(" latent_model_input.size()", latent_model_input.size())
+    print(" latent_model_input.dtype", latent_model_input.dtype)
     # 8. controlnet
     control_model_input = latent_model_input
     controlnet_prompt_embeds = prompt_embeds
@@ -189,8 +190,6 @@ def get_timesteps(noise_scheduler, batch_size):
     return timesteps
 
 def encode_vae_image(vae, image, device):
-    print("vae.device", vae.device)
-    print("image_device", image.device)
     image_latent = vae.encode(image).latent_dist.mode().detach()
     image_latent.to(device)
     return image_latent
