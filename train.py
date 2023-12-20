@@ -73,7 +73,8 @@ def train_loop(
                 cropped_frame2,
                 do_classifier_free_guidance=False
             )
-
+            print(pred.size())
+            print(noise.size())
             loss = criterion(pred, noise)
             print(loss)
             print(loss.requires_grad)
