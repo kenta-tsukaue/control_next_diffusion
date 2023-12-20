@@ -111,15 +111,14 @@ def get_loss(
     )
 
     # 8. unet
-    with torch.no_grad():
-        noise_pred = unet(
-            latent_model_input,
-            timesteps,
-            encoder_hidden_states=prompt_embeds,
-            down_block_additional_residuals=down_block_res_samples,
-            mid_block_additional_residual=mid_block_res_sample,
-            return_dict=False,
-        )[0]
+    noise_pred = unet(
+        latent_model_input,
+        timesteps,
+        encoder_hidden_states=prompt_embeds,
+        down_block_additional_residuals=down_block_res_samples,
+        mid_block_additional_residual=mid_block_res_sample,
+        return_dict=False,
+    )[0]
 
     # 9. do_classifier_free_guidance
     if do_classifier_free_guidance:
