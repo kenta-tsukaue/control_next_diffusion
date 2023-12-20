@@ -112,7 +112,6 @@ def main():
     #set device
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     dtype = torch.float16 if device == torch.device('cuda') else torch.float32
-    print(dtype)
 
     # import config
     config = TrainingConfig()
@@ -125,7 +124,7 @@ def main():
     ])
 
     # get dataset
-    dataset = CustomDataset(config, transform=transform)
+    dataset = CustomDataset(config, device, transform=transform)
 
 
     # set dataloader

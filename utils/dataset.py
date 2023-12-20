@@ -8,10 +8,11 @@ from torchvision.transforms import Compose, Resize, Normalize, ToTensor
 
 
 class CustomDataset(Dataset):
-    def __init__(self, config, transform=None):
+    def __init__(self, config, device, transform=None):
         self.directory = config.data_path
         self.transform = transform
         self.videos = self._load_video_paths()
+        self.device = device
 
     def _load_video_paths(self):
         # フォルダ内のすべての動画ファイルのパスを取得します。
@@ -55,8 +56,8 @@ class CustomDataset(Dataset):
         cropped_frame2 = self.crop_to_square(frame2)
 
         if self.transform:
-            cropped_frame1 = self.transform(cropped_frame1)
-            cropped_frame2 = self.transform(cropped_frame2)
+            cropped_frame1 = self.transform(cropped_frame1).to(device=self.device)
+            cropped_frame2 = self.transform(cropped_frame2).to(device=self.device)
 
         return cropped_frame1, cropped_frame2
     
