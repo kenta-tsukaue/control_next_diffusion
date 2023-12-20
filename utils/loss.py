@@ -65,6 +65,7 @@ def get_loss(
             do_classifier_free_guidance=do_classifier_free_guidance,
             guess_mode=guess_mode,
         )
+        image = image.to(dtype=torch.float16)
         image_c = image_c.to(dtype=torch.float16)
         height, width = image.shape[-2:]
 
