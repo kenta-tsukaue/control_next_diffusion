@@ -52,8 +52,8 @@ def train_loop(
         progress_bar.set_description(f"Epoch {epoch}")
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
-            cropped_frame1.to(dtype=dtype)
-            cropped_frame2.to(dtype=dtype)
+            cropped_frame1 = cropped_frame1.to(dtype=dtype)
+            cropped_frame2 = cropped_frame2.to(dtype=dtype)
             prompt = [""] * config.train_batch_size
             # get loss
             loss = get_loss(

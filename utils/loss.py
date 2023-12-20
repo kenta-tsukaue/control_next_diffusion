@@ -28,8 +28,6 @@ def get_loss(
 ):
     # to float16
     print("dtypes", image.dtype, image_c.dtype)
-    image.to(dtype=torch.float16)
-    image_c.to(dtype=torch.float16)
     #print("image.size()", image.size())
     with torch.no_grad():
         # 0. Settings
