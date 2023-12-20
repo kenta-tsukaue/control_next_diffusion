@@ -74,14 +74,6 @@ def train_loop(
                 cropped_frame2,
                 do_classifier_free_guidance=False
             )
-            # pred と noise に NaN 値が含まれているか確認
-            nan_in_pred = torch.isnan(pred).any()
-            nan_in_noise = torch.isnan(noise).any()
-
-            # 結果を出力
-            print(f"NaN in pred: {nan_in_pred}")
-            print(f"NaN in noise: {nan_in_noise}")
-
             loss = criterion(pred, noise)
             print(loss)
             print(loss.requires_grad)
