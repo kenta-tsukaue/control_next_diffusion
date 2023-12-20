@@ -54,12 +54,11 @@ def train_loop(
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
-            print(cropped_frame1.device)  # ここでデバイスをチェック
             cropped_frame1 = cropped_frame1.to(device)
             cropped_frame2 = cropped_frame2.to(device)
-            print(cropped_frame1.device)  # ここでデバイスをチェック
+            
             # get loss
-            loss = get_loss(
+            pred, noise = get_loss(
                 unet,
                 vae,
                 controlnet,
@@ -70,13 +69,12 @@ def train_loop(
                 device,
                 dtype,
                 prompt,
-                cropped_frame1,#次
-                cropped_frame2,#最初
-                criterion,
+                cropped_frame1,
+                cropped_frame2,
                 do_classifier_free_guidance=False
             )
-            print(loss)
 
+            loss = criterion(pred, noise)
             loss.backward()
             optimizer.step()
             lr_scheduler.step()

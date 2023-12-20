@@ -19,7 +19,6 @@ def get_loss(
     prompt: Union[str, List[str]] = None,
     image = None,
     image_c = None,
-    criterion = None,
     height: Optional[int] = None,
     width: Optional[int] = None,
     guidance_scale: float = 7.5,
@@ -126,10 +125,8 @@ def get_loss(
     if do_classifier_free_guidance:
         noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
         noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)
-
-    loss = criterion(noise_pred, noise)
     
-    return loss
+    return noise_pred, noise
 
 def prepare_noise(
         batch_size,
