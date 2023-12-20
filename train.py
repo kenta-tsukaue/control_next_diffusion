@@ -74,10 +74,8 @@ def train_loop(
                 do_classifier_free_guidance=False
             )
 
-            for param in controlnet.parameters():
-                print(param.requires_grad)
-
             loss = criterion(pred, noise)
+            print(loss)
             loss.backward()
             optimizer.step()
             lr_scheduler.step()
