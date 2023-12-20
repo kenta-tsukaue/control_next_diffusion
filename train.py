@@ -9,6 +9,7 @@ from diffusers.optimization import get_cosine_schedule_with_warmup
 from PIL import Image
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torchvision.transforms import Compose, Resize, Normalize, ToTensor
 from tqdm.auto import tqdm
 from transformers import CLIPTextModel, CLIPTokenizer, CLIPImageProcessor
@@ -74,7 +75,8 @@ def train_loop(
                 cropped_frame2,
                 do_classifier_free_guidance=False
             )
-            loss = criterion(pred, noise)
+            #loss = criterion(pred, noise)
+            loss = F.mse_loss(pred, noise)
             print(loss)
             print(loss.requires_grad)
             loss.backward()
