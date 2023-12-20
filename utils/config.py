@@ -9,7 +9,7 @@ class TrainingConfig:
     data_path = "/public/tsukaue/datasets/action_youtube_naudio"  #"dataset/action_youtube_naudio"
     num_epochs = 10
     gradient_accumulation_steps = 1
-    learning_rate = 0
+    learning_rate = 1e-5
     lr_warmup_steps = 500
     save_image_epochs = 10
     save_model_epochs = 30

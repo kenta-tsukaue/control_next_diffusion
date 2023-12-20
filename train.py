@@ -88,6 +88,7 @@ def train_loop(
             )
             #loss = criterion(pred, noise)
             loss = F.mse_loss(pred.float(), noise.float(), reduction="mean")
+            print(loss)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(controlnet.parameters(), max_norm=1.0)
             if step == 0:
