@@ -92,9 +92,8 @@ def get_loss(
 
 
     # 6. Encode input using VAE
-    with torch.no_grad():
-        image_latents = encode_vae_image(vae, image, device)
-        image_latents = image_latents.to(dtype=dtype)
+    image_latents = encode_vae_image(vae, image, device)
+    image_latents = image_latents.to(dtype=dtype)
 
     # 7. add noise
     latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps).to(dtype=dtype).to(device=device)
