@@ -6,7 +6,7 @@ class TrainingConfig:
     width = 768
     train_batch_size = 4
     eval_batch_size = 4  # how many images to sample during evaluation
-    data_path = "dataset/action_youtube_naudio" #train.pyからの位置
+    data_path = "/public/tsukaue/datasets/action_youtube_naudio" #train.pyからの位置
     num_epochs = 10
     gradient_accumulation_steps = 1
     learning_rate = 1e-4
