@@ -39,6 +39,9 @@ def get_loss(
         )
         image = image.to(device=device)
         image_c = image_c.to(device=device)
+
+        print(image.device)
+        print(image_c.device)
         
         # 1. Encode input prompt
         prompt_embeds, negative_prompt_embeds = encode_prompt(

@@ -153,9 +153,6 @@ def main():
     vae.eval()
     text_encoder.eval()
 
-    for name, param in vae.named_parameters():
-        print(f"{name}: {param.device}")
-
     # set optimizer
     optimizer = torch.optim.AdamW(controlnet.parameters(), lr=config.learning_rate)
     lr_scheduler = get_cosine_schedule_with_warmup(
