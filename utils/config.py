@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class TrainingConfig:
     height = 768  # the generated image resolution
     width = 768
-    train_batch_size = 4
+    train_batch_size = 8
     eval_batch_size = 2
     data_path = "/public/tsukaue/datasets/action_youtube_naudio" #train.pyからの位置
     num_epochs = 10
