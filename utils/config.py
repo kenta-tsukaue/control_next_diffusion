@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 @dataclass
 class TrainingConfig:
-    height = 512  # the generated image resolution
-    width = 512
+    height = 768  # the generated image resolution
+    width = 768
     train_batch_size = 2
     eval_batch_size = 2
     data_path = "/public/tsukaue/datasets/action_youtube_naudio"  #"dataset/action_youtube_naudio"

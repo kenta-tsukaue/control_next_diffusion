@@ -144,7 +144,7 @@ def main():
 
     # set transform
     transform = Compose([
-        Resize((512, 512)),  # 768x768にリサイズ
+        Resize((768, 768)),  # 768x768にリサイズ
         Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
