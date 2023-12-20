@@ -57,6 +57,12 @@ def train_loop(
             prompt = [""] * config.train_batch_size
             cropped_frame1 = cropped_frame1.to(device)
             cropped_frame2 = cropped_frame2.to(device)
+
+            for name, param in controlnet.named_parameters():
+                if param.requires_grad:
+                    print(f"Layer: {name}")
+                    print(f"Weight: {param.data}")
+                    print(f"Weight's gradient: {param.grad}")
             
             optimizer.zero_grad()
             # get loss
