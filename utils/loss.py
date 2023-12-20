@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 
 from diffusers_lib.image_processor import VaeImageProcessor
-
+from utils.check_nan import check_nan
 
 def get_loss(
     unet,
@@ -104,6 +104,8 @@ def get_loss(
     # 8. controlnet
     control_model_input = latent_model_input
     controlnet_prompt_embeds = prompt_embeds
+
+    check_nan("control_model_input",control_model_input)
     down_block_res_samples, mid_block_res_sample = controlnet(
         control_model_input,
         timesteps,
@@ -112,6 +114,8 @@ def get_loss(
         guess_mode=guess_mode,
         return_dict=False,
     )
+    check_nan("down_block_res_samples",down_block_res_samples)
+    check_nan("mid_block_res_sample",mid_block_res_sample)
 
     # 8. unet
     noise_pred = unet(
@@ -122,6 +126,8 @@ def get_loss(
         mid_block_additional_residual=mid_block_res_sample,
         return_dict=False,
     )[0]
+
+    check_nan("noise_pred",noise_pred)
 
     # 9. do_classifier_free_guidance
     if do_classifier_free_guidance:

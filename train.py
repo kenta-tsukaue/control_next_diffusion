@@ -56,14 +56,6 @@ def train_loop(
             prompt = [""] * config.train_batch_size
             cropped_frame1 = cropped_frame1.to(device)
             cropped_frame2 = cropped_frame2.to(device)
-
-            #  cropped_frame1 と  cropped_frame2 に NaN 値が含まれているか確認
-            nan_in_cropped_frame1 = torch.isnan(cropped_frame1).any()
-            nan_in_cropped_frame2 = torch.isnan(cropped_frame2).any()
-
-            # 結果を出力
-            print(f"NaN in pred: {nan_in_cropped_frame1}")
-            print(f"NaN in noise: {nan_in_cropped_frame2}")
             
             optimizer.zero_grad()
             # get loss
