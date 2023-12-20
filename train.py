@@ -114,6 +114,7 @@ def main():
     #set device
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     dtype = torch.float16 if device == torch.device('cuda') else torch.float32
+    print(dtype)
 
     # import config
     config = TrainingConfig()
