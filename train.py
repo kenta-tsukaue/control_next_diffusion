@@ -60,7 +60,7 @@ def train_loop(
 
             #nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
             #print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
-            if step == 1:
+            if step == 0:
                 print("uyaaaaaaa")
                 nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
                 print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
