@@ -98,10 +98,7 @@ def get_loss(
         latent_model_input = torch.cat([image_latents] * 2) if do_classifier_free_guidance else latent_model_input
         timesteps = torch.cat((timesteps, timesteps), dim=0) if do_classifier_free_guidance else timesteps
 
-
-    print("prompt_embeds.dtype", prompt_embeds.dtype)
-    print("prompt_embeds.device", prompt_embeds.device)
-
+    print("controlnet.device",controlnet.device)
     # 8. controlnet
     control_model_input = latent_model_input
     controlnet_prompt_embeds = prompt_embeds
