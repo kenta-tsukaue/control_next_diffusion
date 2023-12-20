@@ -165,9 +165,9 @@ def main():
 
     # to eval mode　
     controlnet.train()
-    unet.eval()
-    vae.eval()
-    text_encoder.eval()
+    unet.requires_grad_(False)
+    vae.requires_grad_(False)
+    text_encoder.requires_grad_(False)
 
     # set optimizer
     criterion = nn.MSELoss()

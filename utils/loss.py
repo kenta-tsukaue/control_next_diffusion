@@ -34,42 +34,40 @@ def get_loss(
     height = height or unet.config.sample_size * vae_scale_factor
     width = width or unet.config.sample_size * vae_scale_factor
 
-    with torch.no_grad():
-        control_image_processor = VaeImageProcessor(
-            vae_scale_factor=vae_scale_factor, do_normalize=False
-        )
+    control_image_processor = VaeImageProcessor(
+        vae_scale_factor=vae_scale_factor, do_normalize=False
+    )
+
     image = image.to(device=device)
     image_c = image_c.to(device=device)
 
-    with torch.no_grad():
-        # 1. Encode input prompt
-        prompt_embeds, negative_prompt_embeds = encode_prompt(
-            unet,
-            text_encoder,
-            tokenizer,
-            prompt,
-            device,
-            num_images_per_prompt,
-            do_classifier_free_guidance,
-        )
+    # 1. Encode input prompt
+    prompt_embeds, negative_prompt_embeds = encode_prompt(
+        unet,
+        text_encoder,
+        tokenizer,
+        prompt,
+        device,
+        num_images_per_prompt,
+        do_classifier_free_guidance,
+    )
 
     if do_classifier_free_guidance:
         prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
 
-    with torch.no_grad():
-        # 2. Prepare image_c
-        image_c = prepare_image(
-            image=image_c,
-            width=width,
-            height=height,
-            batch_size=batch_size * num_images_per_prompt,
-            control_image_processor=control_image_processor,
-            num_images_per_prompt=num_images_per_prompt,
-            device=device,
-            dtype=controlnet.dtype,
-            do_classifier_free_guidance=do_classifier_free_guidance,
-            guess_mode=guess_mode,
-        )
+    # 2. Prepare image_c
+    image_c = prepare_image(
+        image=image_c,
+        width=width,
+        height=height,
+        batch_size=batch_size * num_images_per_prompt,
+        control_image_processor=control_image_processor,
+        num_images_per_prompt=num_images_per_prompt,
+        device=device,
+        dtype=controlnet.dtype,
+        do_classifier_free_guidance=do_classifier_free_guidance,
+        guess_mode=guess_mode,
+    )
 
     image = image.to(dtype=dtype)
     image_c = image_c.to(dtype=dtype)
@@ -92,9 +90,9 @@ def get_loss(
 
 
     # 6. Encode input using VAE
-    with torch.no_grad():
-        image_latents = encode_vae_image(vae, image, device)
-        image_latents = image_latents.to(dtype=dtype)
+
+    image_latents = encode_vae_image(vae, image, device)
+    image_latents = image_latents.to(dtype=dtype)
 
     # 7. add noise
     latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps).to(dtype=dtype).to(device=device)
