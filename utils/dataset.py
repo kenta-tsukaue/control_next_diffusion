@@ -39,7 +39,7 @@ class CustomDataset(Dataset):
 
         # Selecting random frame
         if len(video) > 1:
-            random_frame_index = random.randint(0, len(video) - 2)
+            random_frame_index = random.randint(0, len(video) - 3)
         else:
             random_frame_index = 0
 
