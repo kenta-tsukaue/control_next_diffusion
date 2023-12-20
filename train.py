@@ -51,8 +51,6 @@ def train_loop(
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
-            
-            display_gpu("step開始")
             # get loss
             loss = get_loss(
                 unet,
@@ -70,12 +68,10 @@ def train_loop(
             )
             print(loss)
 
-            """loss.backward()
+            loss.backward()
             optimizer.step()
             lr_scheduler.step()
-
             progress_bar.update(1)
-"""
 
 
         
