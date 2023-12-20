@@ -26,9 +26,8 @@ def get_loss(
     guess_mode: bool = False,
     do_classifier_free_guidance = True,
 ):
-    # to float16
+    # 
     print("dtypes", image.dtype, image_c.dtype)
-    #print("image.size()", image.size())
     with torch.no_grad():
         # 0. Settings
         batch_size = len(prompt)
@@ -66,6 +65,7 @@ def get_loss(
             do_classifier_free_guidance=do_classifier_free_guidance,
             guess_mode=guess_mode,
         )
+        image_c = image_c.to(dtype=torch.float16)
         height, width = image.shape[-2:]
 
 
@@ -83,6 +83,7 @@ def get_loss(
 
         # 5. Prepare timesteps
         timesteps = get_timesteps(noise_scheduler, batch_size)
+
 
         # 6. Encode input using VAE
         image_latents = encode_vae_image(vae, image, device)
@@ -158,7 +159,7 @@ def prepare_image(
         do_classifier_free_guidance=False,
         guess_mode=False,
     ):
-        image = control_image_processor.preprocess(image, height=height, width=width).to(dtype=torch.float32)
+        image = control_image_processor.preprocess(image, height=height, width=width)
         image_batch_size = image.shape[0]
 
         if image_batch_size == 1:
