@@ -60,11 +60,11 @@ def train_loop(
 
             #nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
             #print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
-
-            for name, param in controlnet.named_parameters():
-                if param.grad is not None:
-                    if torch.isnan(param.grad).any():
-                        print(f"NaN in gradients of {name}")
+            if step == 1:
+                for name, param in controlnet.named_parameters():
+                    if param.grad is not None:
+                        if torch.isnan(param.grad).any():
+                            print(f"NaN in gradients of {name}")
 
             
             optimizer.zero_grad()
