@@ -136,21 +136,13 @@ def main():
     train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=config.train_batch_size, shuffle=True)
 
     # import models
-    unet = getModel("unet")
-    controlnet = ControlNetModel.from_unet(unet) # 訓練対象
-    vae = getModel("vae")
+    unet = getModel("unet").to(device).to(dtype=dtype)
+    controlnet = ControlNetModel.from_unet(unet).to(device).to(dtype=dtype) # 訓練対象
+    vae = getModel("vae").to(device).to(dtype=dtype)
     noise_scheduler = DDIMScheduler.from_pretrained("weights/stable-diffusion-2-1/scheduler", subfolder="scheduler")
     tokenizer = CLIPTokenizer.from_pretrained("weights/stable-diffusion-2-1/tokenizer")
-    text_encoder =  CLIPTextModel.from_pretrained("weights/stable-diffusion-2-1/text_encoder")
+    text_encoder =  CLIPTextModel.from_pretrained("weights/stable-diffusion-2-1/text_encoder").to(device).to(dtype=dtype)
     feature_extractor = CLIPImageProcessor.from_pretrained("weights/stable-diffusion-2-1/feature_extractor")
-
-    # to device
-    unet.to(device).to(dtype=dtype)
-    vae.to(device).to(dtype=dtype)
-    controlnet.to(device).to(dtype=dtype)
-    text_encoder.to(device).to(dtype=dtype)
-
-
 
     # to eval mode　
     unet.eval()
