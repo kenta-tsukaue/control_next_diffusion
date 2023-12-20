@@ -67,6 +67,7 @@ def train_loop(
                 tokenizer,
                 feature_extractor,
                 device,
+                dtype,
                 prompt,
                 cropped_frame1,#次
                 cropped_frame2,#最初

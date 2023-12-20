@@ -15,6 +15,7 @@ def get_loss(
     tokenizer,
     feature_extractor,
     device,
+    dtype,
     prompt: Union[str, List[str]] = None,
     image = None,
     image_c = None,
@@ -26,8 +27,6 @@ def get_loss(
     guess_mode: bool = False,
     do_classifier_free_guidance = True,
 ):
-    # 
-    print("dtypes", image.dtype, image_c.dtype)
     with torch.no_grad():
         # 0. Settings
         batch_size = len(prompt)
@@ -40,8 +39,6 @@ def get_loss(
         image = image.to(device=device)
         image_c = image_c.to(device=device)
 
-        print(image.device)
-        print(image_c.device)
         
         # 1. Encode input prompt
         prompt_embeds, negative_prompt_embeds = encode_prompt(
@@ -70,9 +67,10 @@ def get_loss(
             do_classifier_free_guidance=do_classifier_free_guidance,
             guess_mode=guess_mode,
         )
-        image = image.to(dtype=torch.float16)
-        image_c = image_c.to(dtype=torch.float16)
-        height, width = image.shape[-2:]
+
+
+        image = image.to(dtype=dtype)
+        image_c = image_c.to(dtype=dtype)
 
 
         # 4. Prepare noises
@@ -93,7 +91,7 @@ def get_loss(
 
         # 6. Encode input using VAE
         image_latents = encode_vae_image(vae, image, device)
-        image_latents = image_latents.to(dtype=torch.float16)
+        image_latents = image_latents.to(dtype=dtype)
 
         # 7. add noise
         latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps)
@@ -191,6 +189,8 @@ def get_timesteps(noise_scheduler, batch_size):
     return timesteps
 
 def encode_vae_image(vae, image, device):
+    print("vae.device", vae.device)
+    print("image_device", image.device)
     image_latent = vae.encode(image).latent_dist.mode().detach()
     image_latent.to(device)
     return image_latent
