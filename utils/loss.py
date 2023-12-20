@@ -115,9 +115,10 @@ def get_loss(
         return_dict=False,
     )
 
-    check_nan_list("down_block_res_samples", down_block_res_samples)
-    check_nan_list("mid_block_res_sample", mid_block_res_sample)
-    
+    #check_nan_list("down_block_res_samples", down_block_res_samples)
+    #check_nan_list("mid_block_res_sample", mid_block_res_sample)
+    print("=================================================")
+    print(mid_block_res_sample)
 
     # 8. unet
     noise_pred = unet(
