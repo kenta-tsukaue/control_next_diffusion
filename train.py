@@ -54,7 +54,6 @@ def train_loop(
         progress_bar.set_description(f"Epoch {epoch}")
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
-            print(step)
             prompt = [""] * config.train_batch_size
             cropped_frame1 = cropped_frame1.to(device)
             cropped_frame2 = cropped_frame2.to(device)
@@ -62,10 +61,13 @@ def train_loop(
             #nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
             #print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
             if step == 1:
+                print("uyaaaaaaa")
                 for name, param in controlnet.named_parameters():
                     if param.grad is not None:
                         if torch.isnan(param.grad).any():
                             print(f"NaN in gradients of {name}")
+            else:
+                print(step)
 
             
             optimizer.zero_grad()
@@ -87,8 +89,6 @@ def train_loop(
             )
             #loss = criterion(pred, noise)
             loss = F.mse_loss(pred, noise)
-            print(loss)
-            print(loss.requires_grad)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(controlnet.parameters(), max_norm=1.0)
             optimizer.step()
