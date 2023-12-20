@@ -26,7 +26,10 @@ def get_loss(
     guess_mode: bool = False,
     do_classifier_free_guidance = True,
 ):
-    print("image.size()", image.size())
+    # to float16
+    image.to(dtype=torch.float16)
+    image_c.to(dtype=torch.float16)
+    #print("image.size()", image.size())
     with torch.no_grad():
         # 0. Settings
         batch_size = len(prompt)
@@ -181,7 +184,7 @@ def get_timesteps(noise_scheduler, batch_size):
     timesteps = noise_scheduler.timesteps[timesteps_indices]
     return timesteps
 
-def encode_vae_image(vae, image: torch.Tensor, device):
+def encode_vae_image(vae, image, device):
     # VAEを使用してエンコード
     image_latent = vae.encode(image).latent_dist.mode().detach()
     image_latent.to(device)
