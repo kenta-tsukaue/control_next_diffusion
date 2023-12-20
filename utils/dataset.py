@@ -37,7 +37,6 @@ class CustomDataset(Dataset):
         video_path = self.videos[idx]
         video, _, _ = read_video(video_path, pts_unit='sec')
         video = video.float() / 255.0  # scaling
-        print(len(video))
         if len(video) > 1:
             random_frame_index = random.randint(0, len(video) - 2)  # -2 に変更
             frame1 = video[random_frame_index]

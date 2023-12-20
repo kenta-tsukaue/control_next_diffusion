@@ -2,6 +2,7 @@
 import os
 import pickle
 import sys
+from datetime import datetime
 
 #=======[import libraries]=======
 from diffusers import DDIMScheduler
@@ -50,25 +51,12 @@ def train_loop(
 
     # Now you train the model
     for epoch in range(config.num_epochs):
-        progress_bar = tqdm(total=len(train_dataloader))
-        progress_bar.set_description(f"Epoch {epoch}")
-
+    
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
             cropped_frame1 = cropped_frame1.to(device)
             cropped_frame2 = cropped_frame2.to(device)
 
-            #nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
-            #print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
-            if step == 1:
-                nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
-                print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
-                for name, param in controlnet.named_parameters():
-                    if torch.isnan(param.data).any():
-                        print(f"NaN in parameters of layer: {name}")
-            else:
-                print(step)
-        
             optimizer.zero_grad()
             # get loss
             pred, noise = get_loss(
@@ -86,23 +74,20 @@ def train_loop(
                 cropped_frame2,
                 do_classifier_free_guidance=False
             )
-            #loss = criterion(pred, noise)
             loss = F.mse_loss(pred.float(), noise.float(), reduction="mean")
-            print(loss)
+            
+            # Backward pass and optimization
             loss.backward()
             torch.nn.utils.clip_grad_norm_(controlnet.parameters(), max_norm=1.0)
-            if step == 0:
-                for name, param in controlnet.named_parameters():
-                    if param.grad is not None:
-                        if torch.isnan(param.grad).any():
-                            print(f"NaN in gradients of {name}")
             optimizer.step()
             lr_scheduler.step()
-            progress_bar.update(1)
 
+            # stepが50の倍数のときに進捗とlossを表示
+            if step % 50 == 0:
+                print(f"epoch: {epoch}, step: {step}/{len(train_dataloader)}, loss: {loss.item()}")
 
         
-        if (epoch + 1) % config.save_image_epochs == 0 or epoch == config.num_epochs - 1:
+        """if (epoch + 1) % config.save_image_epochs == 0 or epoch == config.num_epochs - 1:
             pipeline = StableDiffusionControlNetPipeline(
                 vae,
                 text_encoder,
@@ -112,11 +97,24 @@ def train_loop(
                 noise_scheduler,
                 feature_extractor
             )
-            evaluate(config, epoch, pipeline)
+            evaluate(config, epoch, pipeline)"""
 
         if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
             # save model
             print("save model")
+            save_dir = save_dir = "./weights"
+            # ディレクトリが存在しない場合は作成
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+
+            # 現在のタイムスタンプを取得
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            # ファイルパスを設定
+            save_path = os.path.join(save_dir, f"{timestamp}.ckpt")
+
+            # モデルを保存
+            torch.save(controlnet, save_path)
 
 
 
