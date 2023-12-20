@@ -86,7 +86,7 @@ def get_loss(
         )
 
         # 5. Prepare timesteps
-        timesteps = get_timesteps(noise_scheduler, batch_size)
+        timesteps = get_timesteps(noise_scheduler, batch_size).to(device=device)
 
 
         # 6. Encode input using VAE
