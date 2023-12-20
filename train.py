@@ -38,7 +38,9 @@ def train_loop(
         noise_scheduler, 
         optimizer, 
         train_dataloader, 
-        lr_scheduler, device
+        lr_scheduler, 
+        device,
+        dtype
     ):
 
     if config.output_dir is not None:
@@ -50,6 +52,8 @@ def train_loop(
         progress_bar.set_description(f"Epoch {epoch}")
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
+            cropped_frame1.to(dtype=dtype)
+            cropped_frame2.to(dtype=dtype)
             prompt = [""] * config.train_batch_size
             # get loss
             loss = get_loss(
@@ -159,7 +163,7 @@ def main():
         num_training_steps=(len(train_dataloader) * config.num_epochs),
     )
 
-    train_loop(config, unet, controlnet, vae, text_encoder, tokenizer, feature_extractor, noise_scheduler, optimizer, train_dataloader, lr_scheduler, device)
+    train_loop(config, unet, controlnet, vae, text_encoder, tokenizer, feature_extractor, noise_scheduler, optimizer, train_dataloader, lr_scheduler, device, dtype)
 
 
 if __name__ == "__main__":
