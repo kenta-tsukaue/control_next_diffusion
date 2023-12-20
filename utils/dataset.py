@@ -37,15 +37,17 @@ class CustomDataset(Dataset):
         video_path = self.videos[idx]
         video, _, _ = read_video(video_path, pts_unit='sec')
         video = video.float() / 255.0  # scaling
-
-        # Selecting random frame
+        len(video)
         if len(video) > 1:
-            random_frame_index = random.randint(0, len(video) - 3)
+            random_frame_index = random.randint(0, len(video) - 2)  # -2 に変更
+            frame1 = video[random_frame_index]
+            frame2 = video[random_frame_index + 1]
+        elif len(video) == 1:
+            frame1 = video[0]
+            frame2 = video[0]  # video が 1 フレームしかない場合、frame1 と frame2 は同じになる
         else:
-            random_frame_index = 0
-
-        frame1 = video[random_frame_index]
-        frame2 = video[random_frame_index + 1]
+            # video が空の場合、エラー処理や適切な処理をここに記述
+            pass
 
         # Convert frame to (C, H, W) format
         frame1 = frame1.permute(2, 0, 1)
