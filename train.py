@@ -60,7 +60,7 @@ def train_loop(
 
             #nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
             #print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
-            if step == 1:
+            if step == 100:
                 nan_in_controlnet_weights = any(torch.isnan(param).any() for param in controlnet.parameters())
                 print(" nan_in_controlnet_weights",  nan_in_controlnet_weights)
                 for name, param in controlnet.named_parameters():
@@ -68,8 +68,7 @@ def train_loop(
                         print(f"NaN in parameters of layer: {name}")
             else:
                 print(step)
-
-            
+        
             optimizer.zero_grad()
             # get loss
             pred, noise = get_loss(
@@ -91,6 +90,11 @@ def train_loop(
             loss = F.mse_loss(pred, noise)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(controlnet.parameters(), max_norm=1.0)
+            if step == 0:
+                for name, param in controlnet.named_parameters():
+                    if param.grad is not None:
+                        if torch.isnan(param.grad).any():
+                            print(f"NaN in gradients of {name}")
             optimizer.step()
             #lr_scheduler.step()
             progress_bar.update(1)
