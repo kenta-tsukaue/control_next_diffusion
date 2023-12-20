@@ -80,8 +80,8 @@ def train_loop(
             print(loss)
             print(loss.requires_grad)
             loss.backward()
-            optimizer.step()
-            lr_scheduler.step()
+            #optimizer.step()
+            #lr_scheduler.step()
             progress_bar.update(1)
 
 
