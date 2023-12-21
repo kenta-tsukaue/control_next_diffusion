@@ -1,4 +1,5 @@
 #=======[import default libraries]=======
+import io
 import os
 import pickle
 import sys
@@ -81,4 +82,10 @@ tensor_image = tensor_image.unsqueeze(0)
 prompt = [""] * config.train_batch_size
 output = pipe( prompt=prompt, image=tensor_image)
 
-print(output[0][0])
+image_data = output[0][0]
+image = Image.open(io.BytesIO(image_data))
+
+file_path = 'saved_image.png'
+
+# Save the image
+image.save(file_path, format='PNG')
