@@ -80,7 +80,7 @@ tensor_image = transform(image)
 # バッチ次元を追加
 
 tensor_image = tensor_image.unsqueeze(0)
-prompt = [""] * config.train_batch_size
+prompt = ["woman eating ramen"] * config.train_batch_size
 output = pipe( prompt=prompt, image=tensor_image)
 
 image_data = output[0][0]
