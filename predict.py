@@ -81,4 +81,4 @@ tensor_image = tensor_image.unsqueeze(0)
 prompt = [""] * config.train_batch_size
 output = pipe( prompt=prompt, image=tensor_image)
 
-print(output[0])
+print(output[0][0])
