@@ -40,7 +40,7 @@ transform = Compose([
 
 # import models
 unet = getModel("unet").to(device).to(dtype=dtype)
-controlnet = torch.load("weights/20231221_025011.ckpt", map_location=torch.device('cpu'))
+controlnet = torch.load("weights/20231221_025011.ckpt").to(device).to(dtype=dtype)
 vae = getModel("vae").to(device).to(dtype=dtype)
 noise_scheduler = DDIMScheduler.from_pretrained("weights/stable-diffusion-2-1/scheduler", subfolder="scheduler")
 tokenizer = CLIPTokenizer.from_pretrained("weights/stable-diffusion-2-1/tokenizer")
