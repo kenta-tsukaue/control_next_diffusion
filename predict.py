@@ -33,13 +33,14 @@ config = TrainingConfig()
 
 # set transform
 transform = Compose([
+    ToTensor(),
     Resize((768, 768)),  # 768x768にリサイズ
     Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 # import models
 unet = getModel("unet").to(device).to(dtype=dtype)
-controlnet = torch.load("weights/20231221_025011.ckpt").to(device).to(dtype=dtype)
+controlnet = torch.load("weights/20231221_025011.ckpt", map_location=torch.device('cpu'))
 vae = getModel("vae").to(device).to(dtype=dtype)
 noise_scheduler = DDIMScheduler.from_pretrained("weights/stable-diffusion-2-1/scheduler", subfolder="scheduler")
 tokenizer = CLIPTokenizer.from_pretrained("weights/stable-diffusion-2-1/tokenizer")
@@ -47,10 +48,10 @@ text_encoder =  CLIPTextModel.from_pretrained("weights/stable-diffusion-2-1/text
 feature_extractor = CLIPImageProcessor.from_pretrained("weights/stable-diffusion-2-1/feature_extractor")
 
 # to eval mode　
-controlnet.requires_grad_(False)
-unet.requires_grad_(False)
-vae.requires_grad_(False)
-text_encoder.requires_grad_(False)
+controlnet.requires_grad_(False).eval()
+unet.requires_grad_(False).eval()
+vae.requires_grad_(False).eval()
+text_encoder.requires_grad_(False).eval()
 
 # set pipline
 pipe = StableDiffusionControlNetPipeline(
@@ -60,6 +61,7 @@ pipe = StableDiffusionControlNetPipeline(
     unet=unet,
     controlnet=controlnet,
     scheduler=noise_scheduler,
+    safety_checker=None,
     feature_extractor=feature_extractor,
 )
 
