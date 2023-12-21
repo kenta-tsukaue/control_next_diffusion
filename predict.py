@@ -83,9 +83,5 @@ prompt = [""] * config.train_batch_size
 output = pipe( prompt=prompt, image=tensor_image)
 
 image_data = output[0][0]
-image = Image.open(io.BytesIO(image_data))
 
-file_path = 'saved_image.png'
-
-# Save the image
-image.save(file_path, format='PNG')
+image_data.save('output_file.png')
