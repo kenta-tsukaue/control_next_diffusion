@@ -41,8 +41,8 @@ transform = Compose([
 
 # import models
 unet = getModel("unet").to(device).to(dtype=dtype)
-#controlnet = torch.load("weights/20231221_025011.ckpt").to(device).to(dtype=dtype)
-controlnet = ControlNetModel.from_unet(unet).to(device).to(dtype=dtype)
+controlnet = torch.load("weights/20231221_025011.ckpt").to(device).to(dtype=dtype)
+#controlnet = ControlNetModel.from_unet(unet).to(device).to(dtype=dtype)
 vae = getModel("vae").to(device).to(dtype=dtype)
 noise_scheduler = DDIMScheduler.from_pretrained("weights/stable-diffusion-2-1/scheduler", subfolder="scheduler")
 tokenizer = CLIPTokenizer.from_pretrained("weights/stable-diffusion-2-1/tokenizer")
@@ -80,7 +80,7 @@ tensor_image = transform(image)
 # バッチ次元を追加
 
 tensor_image = tensor_image.unsqueeze(0)
-prompt = ["woman eating ramen"] * config.train_batch_size
+prompt = [""] * config.train_batch_size
 output = pipe( prompt=prompt, image=tensor_image)
 
 image_data = output[0][0]
