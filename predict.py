@@ -69,9 +69,8 @@ def predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, fea
 
     image_data.save('output_file.png')
 
-def main(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor):
+def main():
 
-    
     # import models
     unet = getModel("unet").to(device).to(dtype=dtype)
     controlnet = torch.load("weights/20231221_025011.ckpt").to(device).to(dtype=dtype)
@@ -89,6 +88,6 @@ def main(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, featur
     text_encoder.requires_grad_(False).eval()
 
     predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor)
-    
+
 if __name__ == "__main__":
     main()
