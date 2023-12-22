@@ -16,6 +16,7 @@ from tqdm.auto import tqdm
 from transformers import CLIPTextModel, CLIPTokenizer, CLIPImageProcessor
 
 #=======[import own libraries]=======
+from predict import predict
 from utils.loss import get_loss
 from utils.dataset import CustomDataset
 from utils.config import TrainingConfig
@@ -51,7 +52,8 @@ def train_loop(
 
     # Now you train the model
     for epoch in range(config.num_epochs):
-    
+        controlnet.requires_grad_(True)
+        controlnet.train()
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
             cropped_frame1 = cropped_frame1.to(device)
@@ -87,22 +89,38 @@ def train_loop(
                 print(f"epoch: {epoch}, step: {step}/{len(train_dataloader)}, loss: {loss.item()}")
 
         
+        
+        
+        # epoch数が規定のものになったらサンプリングを行う
         """if (epoch + 1) % config.save_image_epochs == 0 or epoch == config.num_epochs - 1:
-            pipeline = StableDiffusionControlNetPipeline(
-                vae,
-                text_encoder,
-                tokenizer,
-                unet,
-                controlnet,
-                noise_scheduler,
-                feature_extractor
-            )
-            evaluate(config, epoch, pipeline)"""
+            print("sampling image")
+            save_dir = f"./output/{epoch}"
+            # ディレクトリが存在しない場合は作成
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            save_path = os.path.join(save_dir, f"sample.png")
 
-        if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
+            predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)"""
+
+        print("sampling image")
+        save_dir = f"./output/{epoch}"
+        # ディレクトリが存在しない場合は作成
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        save_path = os.path.join(save_dir, f"sample.png")
+
+        controlnet.requires_grad_(False)
+        controlnet.eval()
+        predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)
+
+            
+        
+
+        # epoch数が規定のものになったらモデルを保存する
+        """if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
             # save model
             print("save model")
-            save_dir = save_dir = "./weights"
+            save_dir = f"./output/{epoch}"
             # ディレクトリが存在しない場合は作成
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
@@ -111,22 +129,27 @@ def train_loop(
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
             # ファイルパスを設定
-            save_path = os.path.join(save_dir, f"{timestamp}.ckpt")
+            save_path = os.path.join(save_dir, f"model_{timestamp}.ckpt")
 
             # モデルを保存
-            torch.save(controlnet, save_path)
+            torch.save(controlnet, save_path)"""
+        
+        # save model
+        print("save model")
+        save_dir = f"./output/{epoch}"
+        # ディレクトリが存在しない場合は作成
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
 
+        # 現在のタイムスタンプを取得
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+        # ファイルパスを設定
+        save_path = os.path.join(save_dir, f"model_{timestamp}.ckpt")
 
+        # モデルを保存
+        torch.save(controlnet, save_path)
 
-#========[evaluate]========
-def evaluate(config, epoch, pipeline):
-    # Sample some images from random noise (this is the backward diffusion process).
-    # The default pipeline output type is `List[PIL.Image]`
-    images = pipeline(
-        batch_size=config.eval_batch_size,
-        generator=torch.manual_seed(config.seed),
-    ).images
 
 
 #========[main]========

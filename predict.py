@@ -29,7 +29,7 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 dtype = torch.float32 if device == torch.device('cuda') else torch.float32
 
 
-def predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor):
+def predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, output_path):
     # set pipline
     pipe = StableDiffusionControlNetPipeline(
         vae=vae,
@@ -67,18 +67,18 @@ def predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, fea
 
     image_data = output[0][0]
 
-    image_data.save('output_file.png')
+    image_data.save(output_path)
 
 def main():
 
     # import models
-    unet = getModel("unet").to(device)
-    controlnet = torch.load("weights/20231221_025011.ckpt").to(device)
+    unet = getModel("unet").to(device).to(dtype=dtype)
+    controlnet = torch.load("weights/20231221_025011.ckpt").to(device).to(dtype=dtype)
     #controlnet = ControlNetModel.from_unet(unet).to(device).to(dtype=dtype)
-    vae = getModel("vae").to(device)
+    vae = getModel("vae").to(device).to(dtype=dtype)
     noise_scheduler = DDIMScheduler.from_pretrained("weights/stable-diffusion-2-1/scheduler", subfolder="scheduler")
     tokenizer = CLIPTokenizer.from_pretrained("weights/stable-diffusion-2-1/tokenizer")
-    text_encoder =  CLIPTextModel.from_pretrained("weights/stable-diffusion-2-1/text_encoder").to(device)
+    text_encoder =  CLIPTextModel.from_pretrained("weights/stable-diffusion-2-1/text_encoder").to(device).to(dtype=dtype)
     feature_extractor = CLIPImageProcessor.from_pretrained("weights/stable-diffusion-2-1/feature_extractor")
 
     # to eval mode　
