@@ -27,7 +27,7 @@ from diffusers_lib.models.controlnet import ControlNetModel
 
 
 # set max_split_size_mb
-# os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:128'
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:128'
 
 #========[train]========
 def train_loop(
