@@ -62,23 +62,18 @@ def train_loop(
             os.makedirs(save_dir)
         save_path = os.path.join(save_dir, f"sample.png")
 
+        predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)
 
         print("save model")
         save_dir = f"./output/{epoch}"
         # ディレクトリが存在しない場合は作成
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-
-        # 現在のタイムスタンプを取得
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
         # ファイルパスを設定
         save_path = os.path.join(save_dir, f"model.ckpt")
-
         # モデルを保存
         torch.save(controlnet, save_path)
 
-        predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
             cropped_frame1 = cropped_frame1.to(device)
@@ -137,9 +132,6 @@ def train_loop(
             # ディレクトリが存在しない場合は作成
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
-
-            # 現在のタイムスタンプを取得
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
             # ファイルパスを設定
             save_path = os.path.join(save_dir, f"model.ckpt")
