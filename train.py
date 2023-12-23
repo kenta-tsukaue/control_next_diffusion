@@ -54,6 +54,31 @@ def train_loop(
     for epoch in range(config.num_epochs):
         controlnet.requires_grad_(True)
         controlnet.train()
+
+        print("sampling image")
+        save_dir = f"./output/{epoch}"
+        # ディレクトリが存在しない場合は作成
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        save_path = os.path.join(save_dir, f"sample.png")
+
+
+        print("save model")
+        save_dir = f"./output/{epoch}"
+        # ディレクトリが存在しない場合は作成
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
+        # 現在のタイムスタンプを取得
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # ファイルパスを設定
+        save_path = os.path.join(save_dir, f"model.ckpt")
+
+        # モデルを保存
+        torch.save(controlnet, save_path)
+
+        predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
             cropped_frame1 = cropped_frame1.to(device)
@@ -91,7 +116,7 @@ def train_loop(
         
         
         
-        # epoch数が規定のものになったらサンプリングを行う
+        # epoch数が規定のものになったらサンプリングを行う#これをやると重たくて停止
         """if (epoch + 1) % config.save_image_epochs == 0 or epoch == config.num_epochs - 1:
             print("sampling image")
             save_dir = f"./output/{epoch}"
@@ -101,23 +126,11 @@ def train_loop(
             save_path = os.path.join(save_dir, f"sample.png")
 
             predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)"""
-
-        print("sampling image")
-        save_dir = f"./output/{epoch}"
-        # ディレクトリが存在しない場合は作成
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        save_path = os.path.join(save_dir, f"sample.png")
-
-        controlnet.requires_grad_(False)
-        controlnet.eval()
-        predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)
-
-            
+      
         
 
         # epoch数が規定のものになったらモデルを保存する
-        """if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
+        if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
             # save model
             print("save model")
             save_dir = f"./output/{epoch}"
@@ -129,26 +142,10 @@ def train_loop(
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
             # ファイルパスを設定
-            save_path = os.path.join(save_dir, f"model_{timestamp}.ckpt")
+            save_path = os.path.join(save_dir, f"model.ckpt")
 
             # モデルを保存
-            torch.save(controlnet, save_path)"""
-        
-        # save model
-        print("save model")
-        save_dir = f"./output/{epoch}"
-        # ディレクトリが存在しない場合は作成
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-
-        # 現在のタイムスタンプを取得
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        # ファイルパスを設定
-        save_path = os.path.join(save_dir, f"model_{timestamp}.ckpt")
-
-        # モデルを保存
-        torch.save(controlnet, save_path)
+            torch.save(controlnet, save_path)
 
 
 
