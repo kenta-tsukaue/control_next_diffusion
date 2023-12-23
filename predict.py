@@ -68,8 +68,9 @@ def predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, fea
     image_data = output[0][0]
 
     image_data.save(output_path)
-    
+
     del pipe
+    torch.cuda.empty_cache()
 
 def main():
 
