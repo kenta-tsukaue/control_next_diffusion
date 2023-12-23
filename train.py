@@ -27,7 +27,7 @@ from diffusers_lib.models.controlnet import ControlNetModel
 
 
 # set max_split_size_mb
-os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:128'
+# os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:128'
 
 #========[train]========
 def train_loop(
@@ -52,30 +52,6 @@ def train_loop(
 
     # Now you train the model
     for epoch in range(config.num_epochs):
-        
-        controlnet.requires_grad_(False)
-        controlnet.eval()
-        print("sampling image")
-        save_dir = f"./output/{epoch}"
-        # ディレクトリが存在しない場合は作成
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        save_path = os.path.join(save_dir, f"sample.png")
-
-        predict(vae, text_encoder, tokenizer, unet, controlnet, noise_scheduler, feature_extractor, save_path)
-
-        print("save model")
-        save_dir = f"./output/{epoch}"
-        # ディレクトリが存在しない場合は作成
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        # ファイルパスを設定
-        save_path = os.path.join(save_dir, f"model.ckpt")
-        # モデルを保存
-        torch.save(controlnet, save_path)
-
-        controlnet.requires_grad_(True)
-        controlnet.train()
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
@@ -111,8 +87,6 @@ def train_loop(
             if step % 100 == 0:
                 print(f"epoch: {epoch}, step: {step}/{len(train_dataloader)}, loss: {loss.item()}")
 
-        
-        
         
         # epoch数が規定のものになったらサンプリングを行う#これをやると重たくて停止
         """if (epoch + 1) % config.save_image_epochs == 0 or epoch == config.num_epochs - 1:
