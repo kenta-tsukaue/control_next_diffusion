@@ -52,9 +52,9 @@ def train_loop(
 
     # Now you train the model
     for epoch in range(config.num_epochs):
-        controlnet.requires_grad_(True)
-        controlnet.train()
-
+        
+        controlnet.requires_grad_(False)
+        controlnet.eval()
         print("sampling image")
         save_dir = f"./output/{epoch}"
         # ディレクトリが存在しない場合は作成
@@ -73,6 +73,9 @@ def train_loop(
         save_path = os.path.join(save_dir, f"model.ckpt")
         # モデルを保存
         torch.save(controlnet, save_path)
+
+        controlnet.requires_grad_(True)
+        controlnet.train()
 
         for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
             prompt = [""] * config.train_batch_size
