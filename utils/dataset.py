@@ -1,16 +1,14 @@
 import os
 import random
-import torch
-import matplotlib.pyplot as plt
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torchvision.io import read_video
-from torchvision.transforms import Compose, Resize, Normalize, ToTensor
 
 
 class CustomDataset(Dataset):
-    def __init__(self, config, device, transform=None):
+    def __init__(self, config, device, transform=None, transform_c=None):
         self.directory = config.data_path
         self.transform = transform
+        self.transform_c = transform_c
         self.videos = self._load_video_paths()
         self.device = device
 
@@ -57,11 +55,10 @@ class CustomDataset(Dataset):
         cropped_frame2 = self.crop_to_square(frame2)
 
         if self.transform:
-            cropped_frame1 = self.transform(cropped_frame1)
+            cropped_frame1 = self.transform_c(cropped_frame1)
             cropped_frame2 = self.transform(cropped_frame2)
 
-        return cropped_frame1, cropped_frame2
-    
+        return dict(pixel_value=cropped_frame2, conditioning_pixel_value = cropped_frame1, prompt = "")
 
     def crop_to_square(self, frame):
         # Assuming frame is a PyTorch tensor of shape [C, H, W]

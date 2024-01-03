@@ -2,3 +2,5 @@ weights/
 dataset/
 __pycache__/
 utils/__pycache__/
+output/
+training/

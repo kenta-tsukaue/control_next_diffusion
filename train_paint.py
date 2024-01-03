@@ -18,8 +18,8 @@ from transformers import CLIPTextModel, CLIPTokenizer, CLIPImageProcessor
 import matplotlib.pyplot as plt
 
 #=======[import own libraries]=======
-from utils.dataset import CustomDataset
-from utils.config import TrainingConfig
+from utils.dataset_paint import MyDataset
+from utils.config_paint import TrainingConfig
 from utils.check_gpu import display_gpu
 from utils.get_model import getModel
 from diffusers_lib.pipelines.controlnet.pipeline_controlnet import StableDiffusionControlNetPipeline
@@ -53,6 +53,7 @@ def train_loop(
     accumulation_steps = config.gradient_accumulation_steps
 
     for epoch in range(config.num_epochs):
+        #for step, (cropped_frame1, cropped_frame2) in enumerate(train_dataloader):
         for step, batch in enumerate(train_dataloader):
             # 勾配をクリア
             if step % accumulation_steps == 0:
@@ -119,15 +120,15 @@ def train_loop(
                 optimizer.zero_grad()  # 次の蓄積のために勾配をクリア
 
 
-            # stepが10の倍数のときに進捗とlossを表示
+            # stepが100の倍数のときに進捗とlossを表示
             if step % 10 == 0:
-                print(f"epoch: {epoch}, step: {step}/{len(train_dataloader)}, loss: {loss.item()}")
+                print(f"epoch: {epoch}, step: {step}/{len(train_dataloader)}, loss: {loss.item()}")        
 
         # epoch数が規定のものになったらモデルを保存する
         if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.num_epochs - 1:
             # save model
             print("save model")
-            save_dir = f"./output/{epoch}_3"
+            save_dir = f"./output/{epoch}_paint"
             # ディレクトリが存在しない場合は作成
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
@@ -161,18 +162,8 @@ def main():
     config = TrainingConfig()
 
 
-    # set transform
-    transform = Compose([
-        Resize((768, 768)),  # 768x768にリサイズ
-        Normalize([0.5], [0.5]), #[-1, 1]に正規化
-    ])
-
-    transform_c = Compose([
-        Resize((768, 768)),  # 768x768にリサイズ
-    ])
-
     # get dataset
-    dataset = CustomDataset(config, device, transform=transform, transform_c=transform_c)
+    dataset = MyDataset()
 
 
     # set dataloader
@@ -180,7 +171,8 @@ def main():
 
     # import models
     unet = getModel("unet").to(device).to(dtype=dtype)
-    controlnet = ControlNetModel.from_unet(unet).to(device).to(dtype=dtype)
+    controlnet = ControlNetModel.from_unet(unet).to(device).to(dtype=dtype) # 訓練対象
+    #vae = getModel("vae").to(device).to(dtype=dtype)
     vae = AutoencoderKL.from_pretrained("/public/tsukaue/weights/stable-diffusion-2-1/vae").to(device).to(dtype=dtype)
     noise_scheduler = DDIMScheduler.from_pretrained("/public/tsukaue/weights/stable-diffusion-2-1/scheduler")
     tokenizer = CLIPTokenizer.from_pretrained("/public/tsukaue/weights/stable-diffusion-2-1/tokenizer")

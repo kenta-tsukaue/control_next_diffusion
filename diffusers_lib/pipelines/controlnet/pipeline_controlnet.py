@@ -743,16 +743,16 @@ class StableDiffusionControlNetPipeline(
         do_classifier_free_guidance=False,
         guess_mode=False,
     ):
-        image = self.control_image_processor.preprocess(image, height=height, width=width).to(dtype=torch.float32)
-        image_batch_size = image.shape[0]
+        #image = self.control_image_processor.preprocess(image, height=height, width=width).to(dtype=torch.float32)
+        #image_batch_size = image.shape[0]
 
-        if image_batch_size == 1:
+        """if image_batch_size == 1:
             repeat_by = batch_size
         else:
             # image batch size is the same as prompt batch size
-            repeat_by = num_images_per_prompt
+            repeat_by = num_images_per_prompt"""
 
-        image = image.repeat_interleave(repeat_by, dim=0)
+        #image = image.repeat_interleave(repeat_by, dim=0)
 
         image = image.to(device=device, dtype=dtype)
 
@@ -888,6 +888,7 @@ class StableDiffusionControlNetPipeline(
         clip_skip: Optional[int] = None,
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
         callback_on_step_end_tensor_inputs: List[str] = ["latents"],
+        do_classifier_free_guidance = False,
         **kwargs,
     ):
         r"""
@@ -988,6 +989,8 @@ class StableDiffusionControlNetPipeline(
                 "not-safe-for-work" (nsfw) content.
         """
 
+        
+
         callback = kwargs.pop("callback", None)
         callback_steps = kwargs.pop("callback_steps", None)
 
@@ -1064,7 +1067,7 @@ class StableDiffusionControlNetPipeline(
             prompt,
             device,
             num_images_per_prompt,
-            self.do_classifier_free_guidance,
+            do_classifier_free_guidance,
             negative_prompt,
             prompt_embeds=prompt_embeds,
             negative_prompt_embeds=negative_prompt_embeds,
@@ -1074,7 +1077,7 @@ class StableDiffusionControlNetPipeline(
         # For classifier free guidance, we need to do two forward passes.
         # Here we concatenate the unconditional and text embeddings into a single batch
         # to avoid doing two forward passes
-        if self.do_classifier_free_guidance:
+        if do_classifier_free_guidance:
             prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
 
         if ip_adapter_image is not None:
@@ -1082,11 +1085,12 @@ class StableDiffusionControlNetPipeline(
             image_embeds, negative_image_embeds = self.encode_image(
                 ip_adapter_image, device, num_images_per_prompt, output_hidden_state
             )
-            if self.do_classifier_free_guidance:
+            if do_classifier_free_guidance:
                 image_embeds = torch.cat([negative_image_embeds, image_embeds])
 
         # 4. Prepare image
         if isinstance(controlnet, ControlNetModel):
+            print("yaakoodayo")
             image = self.prepare_image(
                 image=image,
                 width=width,
@@ -1095,7 +1099,7 @@ class StableDiffusionControlNetPipeline(
                 num_images_per_prompt=num_images_per_prompt,
                 device=device,
                 dtype=controlnet.dtype,
-                do_classifier_free_guidance=self.do_classifier_free_guidance,
+                do_classifier_free_guidance=do_classifier_free_guidance,
                 guess_mode=guess_mode,
             )
             height, width = image.shape[-2:]
@@ -1111,7 +1115,7 @@ class StableDiffusionControlNetPipeline(
                     num_images_per_prompt=num_images_per_prompt,
                     device=device,
                     dtype=controlnet.dtype,
-                    do_classifier_free_guidance=self.do_classifier_free_guidance,
+                    do_classifier_free_guidance=do_classifier_free_guidance,
                     guess_mode=guess_mode,
                 )
 
@@ -1174,11 +1178,11 @@ class StableDiffusionControlNetPipeline(
                 if (is_unet_compiled and is_controlnet_compiled) and is_torch_higher_equal_2_1:
                     torch._inductor.cudagraph_mark_step_begin()
                 # expand the latents if we are doing classifier free guidance
-                latent_model_input = torch.cat([latents] * 2) if self.do_classifier_free_guidance else latents
+                latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
                 latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
 
                 # controlnet(s) inference
-                if guess_mode and self.do_classifier_free_guidance:
+                if guess_mode and do_classifier_free_guidance:
                     # Infer ControlNet only for the conditional batch.
                     control_model_input = latents
                     control_model_input = self.scheduler.scale_model_input(control_model_input, t)
@@ -1205,7 +1209,7 @@ class StableDiffusionControlNetPipeline(
                     return_dict=False,
                 )
 
-                if guess_mode and self.do_classifier_free_guidance:
+                if guess_mode and do_classifier_free_guidance:
                     # Infered ControlNet only for the conditional batch.
                     # To apply the output of ControlNet to both the unconditional and conditional batches,
                     # add 0 to the unconditional batch to keep it unchanged.
@@ -1226,7 +1230,7 @@ class StableDiffusionControlNetPipeline(
                 )[0]
 
                 # perform guidance
-                if self.do_classifier_free_guidance:
+                if do_classifier_free_guidance:
                     noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
                     noise_pred = noise_pred_uncond + self.guidance_scale * (noise_pred_text - noise_pred_uncond)
 
@@ -1258,7 +1262,7 @@ class StableDiffusionControlNetPipeline(
             torch.cuda.empty_cache()
 
         if not output_type == "latent":
-            image = self.vae.decode(latents / self.vae.config.scaling_factor, return_dict=False, generator=generator)[
+            image = self.vae.decode(latents / self.vae.config.scaling_factor, return_dict=False)[
                 0
             ]
             image, has_nsfw_concept = self.run_safety_checker(image, device, prompt_embeds.dtype)

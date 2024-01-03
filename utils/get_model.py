@@ -27,7 +27,7 @@ def getModel(key:str) -> Union[
     ]:
 
     # read config
-    config_path = "weights/stable-diffusion-2-1/" + key + "/" + model_dict[key]["config_path"]
+    config_path = "/public/tsukaue/weights/stable-diffusion-2-1/" + key + "/" + model_dict[key]["config_path"]
     with open(config_path, 'r') as f:
         config = json.load(f)
     
@@ -36,7 +36,7 @@ def getModel(key:str) -> Union[
 
     # check if the model is pre trained
     if model_dict[key]["exist_safetensor_file"]:
-        safetensor_file_path = "weights/stable-diffusion-2-1/" + key + "/diffusion_pytorch_model.fp16.safetensors"
+        safetensor_file_path = "/public/tsukaue/weights/stable-diffusion-2-1/" + key + "/diffusion_pytorch_model.safetensors"
         tensors = {}
 
         # read safetensors

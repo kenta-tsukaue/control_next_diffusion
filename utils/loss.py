@@ -56,7 +56,7 @@ def get_loss(
         prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
 
     # 2. Prepare image_c
-    image_c = prepare_image(
+    """image_c = prepare_image(
         image=image_c,
         width=width,
         height=height,
@@ -67,7 +67,7 @@ def get_loss(
         dtype=controlnet.dtype,
         do_classifier_free_guidance=do_classifier_free_guidance,
         guess_mode=guess_mode,
-    )
+    )"""
 
     image = image.to(dtype=dtype)
     image_c = image_c.to(dtype=dtype)
@@ -93,6 +93,8 @@ def get_loss(
 
     image_latents = encode_vae_image(vae, image, device)
     image_latents = image_latents.to(dtype=dtype)
+
+    
 
     # 7. add noise
     latent_model_input = noise_scheduler.add_noise(image_latents, noise, timesteps).to(dtype=dtype).to(device=device)
@@ -125,13 +127,20 @@ def get_loss(
         return_dict=False,
     )[0]
 
+    if noise_scheduler.config.prediction_type == "epsilon":
+        target = noise
+    elif noise_scheduler.config.prediction_type == "v_prediction":
+        target = noise_scheduler.get_velocity(image_latents, noise, timesteps)
+    else:
+        raise ValueError(f"Unknown prediction type {noise_scheduler.config.prediction_type}")
+
 
     # 9. do_classifier_free_guidance
     if do_classifier_free_guidance:
         noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
         noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond)
     
-    return noise_pred, noise
+    return noise_pred, target
 
 def prepare_noise(
         batch_size,
@@ -148,9 +157,9 @@ def prepare_noise(
             height // vae_scale_factor,
             width // vae_scale_factor,
         )
-        latents = torch.randn(shape, device=device, dtype=dtype)
+        noise = torch.randn(shape, device=device, dtype=dtype)
 
-        return latents
+        return noise
 
 def prepare_image(
         image,
@@ -190,7 +199,8 @@ def get_timesteps(noise_scheduler, batch_size):
     return timesteps
 
 def encode_vae_image(vae, image, device):
-    image_latent = vae.encode(image).latent_dist.mode().detach()
+    image_latent = vae.encode(image).latent_dist.sample()
+    image_latent = image_latent * vae.config.scaling_factor
     image_latent.to(device)
     return image_latent
 
